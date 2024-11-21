@@ -4,7 +4,6 @@ version = "0.2.0"
 edition = "2021"
 
 [dependencies]
-bevy_terminal_display = "0.4"
 yarnspinner = "0.3"
 textwrap = "0.16"
 zalgo = "0.2"
@@ -14,9 +13,13 @@ anyhow = "1.0"
 downcast-rs = "1.2"
 lazy_static = "1.5"
 
+[dependencies.bevy_terminal_display]
+git = "https://github.com/exvacuum/bevy_terminal_display.git"
+branch = "wip"
+
 [dependencies.bevy_basic_interaction]
 git = "https://github.com/exvacuum/bevy_basic_interaction.git"
-tag = "v0.1.0"
+branch = "wip"
 
 [dependencies.bevy]
 version = "0.14"
