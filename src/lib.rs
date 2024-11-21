@@ -8,14 +8,12 @@ use bevy::prelude::*;
 mod systems;
 pub mod widgets;
 pub mod util;
-pub mod actor;
 
 /// Plugin which provides dialog functionality
 pub struct TerminalDialogPlugin;
 
 impl Plugin for TerminalDialogPlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugins(actor::ActorPlugin)
-            .add_systems(Startup, systems::setup);
+        app.add_systems(Startup, systems::setup);
     }
 }

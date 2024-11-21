@@ -1,54 +1,77 @@
 //! bevy_terminal_display widgets for dialog boxes
 
-use bevy::prelude::*;
-use bevy_terminal_display::{crossterm, ratatui::{layout::{Alignment, Constraint, Flex, Layout}, style::Style, text::{Line, Span}, widgets::{Block, Borders, Clear, HighlightSpacing, List, ListItem, ListState, Padding, Paragraph, Wrap}}, widgets::TerminalWidget};
-use yarnspinner::runtime::DialogueOption;
-use unicode_segmentation::UnicodeSegmentation as _;
+use std::time::{Duration, Instant};
+
 use arbitrary_chunks::ArbitraryChunks as _;
-
-/// Interaction tooltip widget marker
-// TODO: Move tooltip out of this crate?
-#[derive(Component)]
-pub struct InteractTooltip;
-
-/// Interaction tooltip widget
-pub struct InteractTooltipWidget;
-
-impl TerminalWidget for InteractTooltipWidget {
-    fn render(
-        &mut self,
-        frame: &mut bevy_terminal_display::ratatui::Frame,
-        rect: bevy_terminal_display::ratatui::prelude::Rect,
-    ) {
-        let text = Paragraph::new("E")
-            .block(
-                Block::new()
-                    .borders(Borders::ALL)
-                    .padding(Padding::horizontal(1)),
-            )
-            .alignment(Alignment::Center);
-        let [area] = Layout::horizontal([Constraint::Length(5)])
-            .flex(Flex::Center)
-            .areas(rect);
-        let [area] = Layout::vertical([Constraint::Length(3)])
-            .flex(Flex::Center)
-            .areas(area);
-        frame.render_widget(Clear, area);
-        frame.render_widget(text, area);
-    }
-}
+use bevy::prelude::*;
+use bevy_terminal_display::{
+    crossterm,
+    ratatui::{
+        layout::{Constraint, Flex, Layout},
+        style::{Style, Stylize},
+        text::{Line, Span},
+        widgets::{
+            Block, Borders, Clear, HighlightSpacing, List, ListItem, ListState, Padding, Paragraph,
+            Wrap,
+        },
+    },
+    widgets::TerminalWidget,
+};
+use unicode_segmentation::UnicodeSegmentation as _;
+use yarnspinner::runtime::DialogueOption;
 
 /// Dialog box widget marker
 #[derive(Component)]
 pub struct DialogBox;
 
 /// Dialog box widget
-#[derive(Default)]
 pub struct DialogBoxWidget {
     /// Name of speaking character
-    pub character: Option<String>,
+    character: Option<String>,
     /// Chunks of text and corresponding styles representing the currently spoken line
-    pub text: Vec<(String, Style)>,
+    text: Vec<(String, Style)>,
+    /// Index of last character to draw (for typewriter effect).
+    typewriter_index: usize,
+    /// Time last character was drawn.
+    last_character: Instant,
+    /// Speed of typewriter effect (time between characters).
+    speed: Duration,
+    /// Number of characters in the text
+    character_count: usize,
+}
+
+impl DialogBoxWidget {
+    pub fn new(character: Option<String>, text: Vec<(String, Style)>, speed: Duration) -> Self {
+        Self {
+            character,
+            character_count: text
+                .iter()
+                .fold(0, |count, (string, _)| count + string.graphemes(true).count()),
+            text,
+            speed,
+            typewriter_index: 0,
+            last_character: Instant::now(),
+        }
+    }
+
+    pub fn set_character(&mut self, character: Option<String>) {
+        self.character = character
+    }
+
+    pub fn set_text(&mut self, text: Vec<(String, Style)>) {
+        self.character_count = text.iter().fold(0, |count, (string, _)| count + string.graphemes(true).count());
+        self.text = text;
+        self.typewriter_index = 0;
+        self.last_character = Instant::now();
+    }
+
+    pub fn typewriter_complete(&self) -> bool {
+        self.character_count == 0 || self.typewriter_index >= self.character_count
+    }
+
+    pub fn skip_typewriter(&mut self) {
+        self.typewriter_index = self.character_count;
+    }
 }
 
 impl TerminalWidget for DialogBoxWidget {
@@ -57,11 +80,16 @@ impl TerminalWidget for DialogBoxWidget {
         frame: &mut bevy_terminal_display::ratatui::Frame,
         rect: bevy_terminal_display::ratatui::prelude::Rect,
     ) {
-        let text = Paragraph::new(bevy_terminal_display::ratatui::text::Line::from(
+        let line = Line::from_iter(
             self.text
                 .iter()
-                .map(|(text, style)| Span::styled(text, *style))
-                .collect::<Vec<_>>(),
+                .map(|(text, style)| Span::styled(text, *style)),
+        );
+        let graphemes = line.styled_graphemes(Style::default());
+        let text = Paragraph::new(Line::from_iter(
+            graphemes
+                .take(self.typewriter_index)
+                .map(|g| Span::styled(g.symbol, g.style)),
         ))
         .wrap(Wrap { trim: true })
         .block({
@@ -69,7 +97,7 @@ impl TerminalWidget for DialogBoxWidget {
                 .borders(Borders::ALL)
                 .padding(Padding::horizontal(1));
             if let Some(character) = &self.character {
-                block = block.title(character.clone());
+                block = block.title(Line::from(character.clone()).bold().underlined());
             }
             block
         });
@@ -81,6 +109,15 @@ impl TerminalWidget for DialogBoxWidget {
             .areas(area);
         frame.render_widget(Clear, area);
         frame.render_widget(text, area);
+    }
+
+    fn update(&mut self, _time: &Time, _commands: &mut Commands) {
+        if self.character_count > 0 && self.typewriter_index < self.character_count {
+            if self.last_character.elapsed() >= self.speed {
+                self.typewriter_index += 1;
+                self.last_character = Instant::now();
+            }
+        }
     }
 }
 
