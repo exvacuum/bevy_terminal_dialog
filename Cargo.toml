@@ -18,8 +18,8 @@ lazy_static = "1.5"
 git = "https://git.exvacuum.dev/bevy_basic_interaction"
 tag = "v0.2.0"
 
-[depedencies.yarnspinner]
-git = "https://github.com/YarnSpinnerTool/YarnSpinner-Rust
+[dependencies.yarnspinner]
+git = "https://github.com/YarnSpinnerTool/YarnSpinner-Rust"
 
 [dependencies.bevy]
 version = "0.15"

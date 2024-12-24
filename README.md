@@ -6,15 +6,16 @@
 
 | Crate Version | Bevy Version |
 |---            |---           |
+| 0.2           | 0.15         |
 | 0.1           | 0.14         |
 
 ## Installation
 
-If enough people (like literally 1 person) want this on crates.io I'll consider putting it up there, but for now just add the GitHub URL to your `Cargo.toml`:
+If enough people (like literally 1 person) want this on crates.io I'll consider putting it up there, but for now just add the Git URL to your `Cargo.toml`:
 
 ```toml
 [dependencies.bevy_terminal_dialog]
-git = "https://github.com/exvacuum/bevy_terminal_dialog"
+git = "https://git.exvacuum.dev/bevy_terminal_dialog"
 ```
 
 ## License

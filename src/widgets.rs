@@ -41,6 +41,7 @@ pub struct DialogBoxWidget {
 }
 
 impl DialogBoxWidget {
+    /// Constructs a new dialog box widget
     pub fn new(character: Option<String>, text: Vec<(String, Style)>, speed: Duration) -> Self {
         Self {
             character,
@@ -54,10 +55,12 @@ impl DialogBoxWidget {
         }
     }
 
+    /// Sets the character speaking, or title of the dialog
     pub fn set_character(&mut self, character: Option<String>) {
         self.character = character
     }
 
+    /// Sets the text contained inside the dialog box
     pub fn set_text(&mut self, text: Vec<(String, Style)>) {
         self.character_count = text.iter().fold(0, |count, (string, _)| count + string.graphemes(true).count());
         self.text = text;
@@ -65,10 +68,12 @@ impl DialogBoxWidget {
         self.last_character = Instant::now();
     }
 
+    /// Gets whether all of this dialog box's text has been displayed yet
     pub fn typewriter_complete(&self) -> bool {
         self.character_count == 0 || self.typewriter_index >= self.character_count
     }
 
+    /// Skips the typewriter effect, displaying all text in the dialog box
     pub fn skip_typewriter(&mut self) {
         self.typewriter_index = self.character_count;
     }
