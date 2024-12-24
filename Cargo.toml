@@ -4,26 +4,24 @@ version = "0.2.0"
 edition = "2021"
 
 [dependencies]
+bevy_terminal_display = "0.6"
 textwrap = "0.16"
 zalgo = "0.2"
 arbitrary-chunks = "0.4"
-unicode-segmentation = "1.11"
+unicode-segmentation = "1.12"
 anyhow = "1.0"
 downcast-rs = "1.2"
 lazy_static = "1.5"
 
-[dependencies.bevy_terminal_display]
-git = "https://github.com/exvacuum/bevy_terminal_display.git"
-branch = "wip"
 
 [dependencies.bevy_basic_interaction]
-git = "https://github.com/exvacuum/bevy_basic_interaction.git"
-branch = "wip"
+git = "https://git.exvacuum.dev/bevy_basic_interaction"
+tag = "v0.2.0"
 
-[dependencies.yarnspinner]
-git = "https://github.com/YarnSpinnerTool/YarnSpinner-Rust"
+[depedencies.yarnspinner]
+git = "https://github.com/YarnSpinnerTool/YarnSpinner-Rust
 
 [dependencies.bevy]
-version = "0.14"
+version = "0.15"
 default-features = false
 
